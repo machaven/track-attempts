@@ -23,7 +23,7 @@ Install
 
 ```composer require machaven/track-attempts```
 
-Configuration
+Class Configuration
 --------
 Minimum Configuration
 ```
@@ -43,7 +43,21 @@ $config = [
 $attempts = new \Machaven\TrackAttempts\Drivers\Predis($config);
 ```
 
-The configuration above will create a key named: my-website:login:$username. 
+The configuration above will create a key named: my-website:login:$username.
+
+Predis Driver Configuration
+--------
+The predis driver requires redis settings to be configured in a .env file in your project root folder.
+
+Example .env:
+```
+REDIS_SCHEME=tcp
+REDIS_HOST=localhost
+REDIS_PASSWORD=
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_PROFILE=3.2
+``` 
 
 Usage
 --------

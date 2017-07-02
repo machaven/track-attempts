@@ -28,11 +28,19 @@ class Predis implements TrackAttemptsInterface
         $dotenv = new Dotenv(__DIR__ . '/../../../../../');
         $dotenv->load();
 
-        $this->redis = new PredisClient([
+        $hostConfig = [
             'scheme' => getenv('REDIS_SCHEME'),
             'host' => getenv('REDIS_HOST'),
             'port' => getenv('REDIS_PORT'),
-        ], [
+        ];
+
+        $password = getenv('REDIS_PASSWORD');
+
+        if (!empty($password)) {
+            $hostConfig['password'] = $password;
+        }
+
+        $this->redis = new PredisClient($hostConfig, [
             'parameters' => [
                 'database' => getenv('REDIS_DB'),
             ],
