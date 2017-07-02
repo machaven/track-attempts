@@ -2,11 +2,10 @@
 
 namespace Machaven\TrackAttempts\Drivers;
 
-use Machaven\TrackAttempts\Objects\AttemptObject;
+use Illuminate\Support\Facades\Cache;
 use Machaven\TrackAttempts\TrackAttemptsInterface;
 use Machaven\TrackAttempts\Traits\CommonTrait;
 use Machaven\TrackAttempts\Traits\ConfigTrait;
-use Illuminate\Support\Facades\Cache;
 
 class LaravelCacheRedis implements TrackAttemptsInterface
 {
@@ -22,21 +21,23 @@ class LaravelCacheRedis implements TrackAttemptsInterface
         return Cache::get($this->redisKey);
     }
 
+    private function keyExists()
+    {
+        return Cache::has($this->redisKey);
+    }
+
     public function increment()
     {
         $this->invalidateIfExpired();
 
-        if (Cache::has($this->redisKey)) {
+        if ($this->keyExists()) {
             $attemptObject = $this->getAttemptObject();
             $attemptObject->attempts++;
             $expiresFromNow = (time() - $attemptObject->expires) * 60;
             Cache::put($this->redisKey, $attemptObject, $expiresFromNow);
         } else {
             $expireSeconds = $this->ttlInMinutes * 60;
-
-            $attemptObject = new AttemptObject();
-            $attemptObject->attempts++;
-            $attemptObject->expires = time() + $expireSeconds;
+            $attemptObject = $this->createAttemptObject(1, $expireSeconds);
 
             Cache::put($this->redisKey, $attemptObject, $this->ttlInMinutes);
         }
@@ -46,7 +47,7 @@ class LaravelCacheRedis implements TrackAttemptsInterface
     {
         $this->invalidateIfExpired();
 
-        if (Cache::has($this->redisKey)) {
+        if ($this->keyExists()) {
             return $this->getAttemptObject()->attempts;
         }
 
@@ -57,7 +58,7 @@ class LaravelCacheRedis implements TrackAttemptsInterface
     {
         $this->invalidateIfExpired();
 
-        if (Cache::has($this->redisKey)) {
+        if ($this->keyExists()) {
             if ($this->getCount() >= $this->maxAttempts) {
                 return true;
             }
@@ -70,7 +71,7 @@ class LaravelCacheRedis implements TrackAttemptsInterface
     {
         $this->invalidateIfExpired();
 
-        if (Cache::has($this->redisKey)) {
+        if ($this->keyExists()) {
             return $this->getTimeUntilExpireCalculation($this->getAttemptObject()->expires);
         }
 
