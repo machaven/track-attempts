@@ -48,6 +48,8 @@ class Predis implements TrackAttemptsInterface
 
     public function increment()
     {
+        $this->invalidateIfExpired();
+
         if ($this->isLimitReached()) {
             return false;
         }
@@ -72,6 +74,8 @@ class Predis implements TrackAttemptsInterface
 
     public function getCount()
     {
+        $this->invalidateIfExpired();
+
         if ($this->redis->exists($this->redisKey)) {
             return $this->getAttemptObject()->attempts;
         }
@@ -81,6 +85,8 @@ class Predis implements TrackAttemptsInterface
 
     public function isLimitReached()
     {
+        $this->invalidateIfExpired();
+
         if ($this->redis->exists($this->redisKey)) {
 
             if ($this->getCount() >= $this->maxAttempts) {
@@ -93,6 +99,8 @@ class Predis implements TrackAttemptsInterface
 
     public function getTimeUntilExpired()
     {
+        $this->invalidateIfExpired();
+
         if ($this->redis->exists($this->redisKey)) {
             return $this->getTimeUntilExpireCalculation($this->getAttemptObject()->expires);
         }

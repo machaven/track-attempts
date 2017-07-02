@@ -24,6 +24,7 @@ class LaravelCacheRedis implements TrackAttemptsInterface
 
     public function increment()
     {
+        $this->invalidateIfExpired();
 
         if (Cache::has($this->redisKey)) {
             $attemptObject = $this->getAttemptObject();
@@ -43,6 +44,8 @@ class LaravelCacheRedis implements TrackAttemptsInterface
 
     public function getCount()
     {
+        $this->invalidateIfExpired();
+
         if (Cache::has($this->redisKey)) {
             return $this->getAttemptObject()->attempts;
         }
@@ -52,6 +55,8 @@ class LaravelCacheRedis implements TrackAttemptsInterface
 
     public function isLimitReached()
     {
+        $this->invalidateIfExpired();
+
         if (Cache::has($this->redisKey)) {
             if ($this->getCount() >= $this->maxAttempts) {
                 return true;
@@ -63,6 +68,8 @@ class LaravelCacheRedis implements TrackAttemptsInterface
 
     public function getTimeUntilExpired()
     {
+        $this->invalidateIfExpired();
+
         if (Cache::has($this->redisKey)) {
             return $this->getTimeUntilExpireCalculation($this->getAttemptObject()->expires);
         }

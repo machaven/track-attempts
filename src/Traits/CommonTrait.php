@@ -12,4 +12,10 @@ trait CommonTrait
     {
         return ($expires - time() < 0) ? 0 : $expires - time();
     }
+
+    private function invalidateIfExpired() {
+        if ($this->getTimeUntilExpired() < 0) {
+            $this->clear();
+        }
+    }
 }
