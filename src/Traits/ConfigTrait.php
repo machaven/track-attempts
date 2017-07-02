@@ -2,7 +2,6 @@
 
 namespace Machaven\TrackAttempts\Traits;
 
-
 trait ConfigTrait
 {
     /**
@@ -31,9 +30,9 @@ trait ConfigTrait
     private $userIdentifier;
 
     /**
-     * @var string $redisKey
+     * @var string $trackingKey
      */
-    private $redisKey;
+    private $trackingKey;
 
     /**
      * ConstructorTrait constructor.
@@ -52,6 +51,6 @@ trait ConfigTrait
             throw new \InvalidArgumentException('Missing user identifier.');
         }
         $this->userIdentifier = $config['userIdentifier'];
-        $this->redisKey = $this->systemName . ':' . $this->actionName . ':' . $this->userIdentifier;
+        $this->trackingKey = $this->systemName . ':' . $this->actionName . ':' . $this->userIdentifier;
     }
 }

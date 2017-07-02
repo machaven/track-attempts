@@ -42,12 +42,12 @@ class Predis implements TrackAttemptsInterface
 
     private function getAttemptObject()
     {
-        return unserialize($this->redis->get($this->redisKey));
+        return unserialize($this->redis->get($this->trackingKey));
     }
 
     private function keyExists()
     {
-        return $this->redis->exists($this->redisKey);
+        return $this->redis->exists($this->trackingKey);
     }
 
     public function increment()
@@ -61,13 +61,13 @@ class Predis implements TrackAttemptsInterface
         if ($this->keyExists()) {
             $attemptObject = $this->getAttemptObject();
             $attemptObject->attempts++;
-            $this->redis->set($this->redisKey, serialize($attemptObject));
+            $this->redis->set($this->trackingKey, serialize($attemptObject));
         } else {
             $expireSeconds = $this->ttlInMinutes * 60;
             $attemptObject = $this->createAttemptObject(1, $expireSeconds);
 
-            $this->redis->set($this->redisKey, serialize($attemptObject));
-            $this->redis->expire($this->redisKey, $expireSeconds);
+            $this->redis->set($this->trackingKey, serialize($attemptObject));
+            $this->redis->expire($this->trackingKey, $expireSeconds);
         }
 
         return true;
@@ -111,6 +111,6 @@ class Predis implements TrackAttemptsInterface
 
     public function clear()
     {
-        return (bool)$this->redis->del([$this->redisKey]);
+        return (bool)$this->redis->del([$this->trackingKey]);
     }
 }

@@ -18,12 +18,12 @@ class LaravelCacheRedis implements TrackAttemptsInterface
 
     private function getAttemptObject()
     {
-        return Cache::get($this->redisKey);
+        return Cache::get($this->trackingKey);
     }
 
     private function keyExists()
     {
-        return Cache::has($this->redisKey);
+        return Cache::has($this->trackingKey);
     }
 
     public function increment()
@@ -34,12 +34,12 @@ class LaravelCacheRedis implements TrackAttemptsInterface
             $attemptObject = $this->getAttemptObject();
             $attemptObject->attempts++;
             $expiresFromNow = (time() - $attemptObject->expires) * 60;
-            Cache::put($this->redisKey, $attemptObject, $expiresFromNow);
+            Cache::put($this->trackingKey, $attemptObject, $expiresFromNow);
         } else {
             $expireSeconds = $this->ttlInMinutes * 60;
             $attemptObject = $this->createAttemptObject(1, $expireSeconds);
 
-            Cache::put($this->redisKey, $attemptObject, $this->ttlInMinutes);
+            Cache::put($this->trackingKey, $attemptObject, $this->ttlInMinutes);
         }
     }
 
@@ -80,6 +80,6 @@ class LaravelCacheRedis implements TrackAttemptsInterface
 
     public function clear()
     {
-        return Cache::forget($this->redisKey);
+        return Cache::forget($this->trackingKey);
     }
 }
