@@ -23,7 +23,7 @@ trait CommonTrait
      */
     private function getTimeUntilExpireCalculation($expires)
     {
-        return ($expires - time() < 0) ? 0 : $expires - time();
+        return ($expires - time() <= 0) ? 0 : $expires - time();
     }
 
     private function invalidateIfExpired()

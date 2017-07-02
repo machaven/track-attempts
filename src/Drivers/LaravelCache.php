@@ -7,7 +7,7 @@ use Machaven\TrackAttempts\TrackAttemptsInterface;
 use Machaven\TrackAttempts\Traits\CommonTrait;
 use Machaven\TrackAttempts\Traits\ConfigTrait;
 
-class LaravelCacheRedis implements TrackAttemptsInterface
+class LaravelCache implements TrackAttemptsInterface
 {
     use ConfigTrait, CommonTrait;
 
@@ -23,17 +23,21 @@ class LaravelCacheRedis implements TrackAttemptsInterface
 
     private function keyExists()
     {
-        return Cache::has($this->trackingKey);
+        return Cache::get($this->trackingKey) !== null;
     }
 
     public function increment()
     {
         $this->invalidateIfExpired();
 
+        if ($this->isLimitReached()) {
+            return false;
+        }
+
         if ($this->keyExists()) {
             $attemptObject = $this->getAttemptObject();
             $attemptObject->attempts++;
-            $expiresFromNow = (time() - $attemptObject->expires) * 60;
+            $expiresFromNow = $this->getTimeUntilExpireCalculation($attemptObject->expires) / 60;
             Cache::put($this->trackingKey, $attemptObject, $expiresFromNow);
         } else {
             $expireSeconds = $this->ttlInMinutes * 60;
@@ -41,6 +45,8 @@ class LaravelCacheRedis implements TrackAttemptsInterface
 
             Cache::put($this->trackingKey, $attemptObject, $this->ttlInMinutes);
         }
+
+        return true;
     }
 
     public function getCount()

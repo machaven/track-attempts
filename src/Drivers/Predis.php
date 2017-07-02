@@ -61,7 +61,9 @@ class Predis implements TrackAttemptsInterface
         if ($this->keyExists()) {
             $attemptObject = $this->getAttemptObject();
             $attemptObject->attempts++;
+            $expiresFromNow = $this->getTimeUntilExpireCalculation($attemptObject->expires);
             $this->redis->set($this->trackingKey, serialize($attemptObject));
+            $this->redis->expire($this->trackingKey, $expiresFromNow);
         } else {
             $expireSeconds = $this->ttlInMinutes * 60;
             $attemptObject = $this->createAttemptObject(1, $expireSeconds);
