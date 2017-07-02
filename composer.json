@@ -1,0 +1,24 @@
+{
+    "name": "machaven/track-attempts",
+    "description": "Track and limit any auth, OTP, or any other type of action.",
+    "keywords": ["track", "otp", "auth", "limit", "redis", "cache", "laravel"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "David Olivier",
+            "email": "machaven@gmail.com"
+        }
+    ],
+    "type": "package",
+    "require": {
+		"php": ">=5.4"
+    },
+	"require-dev": {
+		"phpunit/phpunit": "5.2.*"
+    },
+	"autoload": {
+        "psr-0": {
+            "Machaven\\TrackAttempts\\": "src/"
+        }
+    }
+}
