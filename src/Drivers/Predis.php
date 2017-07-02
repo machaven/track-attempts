@@ -3,7 +3,6 @@
 namespace Machaven\TrackAttempts\Drivers;
 
 use Dotenv\Dotenv;
-use Machaven\TrackAttempts\Objects\AttemptObject;
 use Machaven\TrackAttempts\TrackAttemptsInterface;
 use Machaven\TrackAttempts\Traits\CommonTrait;
 use Machaven\TrackAttempts\Traits\ConfigTrait;
@@ -46,6 +45,11 @@ class Predis implements TrackAttemptsInterface
         return unserialize($this->redis->get($this->redisKey));
     }
 
+    private function keyExists()
+    {
+        return $this->redis->exists($this->redisKey);
+    }
+
     public function increment()
     {
         $this->invalidateIfExpired();
@@ -54,16 +58,13 @@ class Predis implements TrackAttemptsInterface
             return false;
         }
 
-        if ($this->redis->exists($this->redisKey)) {
+        if ($this->keyExists()) {
             $attemptObject = $this->getAttemptObject();
             $attemptObject->attempts++;
             $this->redis->set($this->redisKey, serialize($attemptObject));
         } else {
             $expireSeconds = $this->ttlInMinutes * 60;
-
-            $attemptObject = new AttemptObject();
-            $attemptObject->attempts++;
-            $attemptObject->expires = time() + $expireSeconds;
+            $attemptObject = $this->createAttemptObject(1, $expireSeconds);
 
             $this->redis->set($this->redisKey, serialize($attemptObject));
             $this->redis->expire($this->redisKey, $expireSeconds);
@@ -76,7 +77,7 @@ class Predis implements TrackAttemptsInterface
     {
         $this->invalidateIfExpired();
 
-        if ($this->redis->exists($this->redisKey)) {
+        if ($this->keyExists()) {
             return $this->getAttemptObject()->attempts;
         }
 
@@ -87,7 +88,7 @@ class Predis implements TrackAttemptsInterface
     {
         $this->invalidateIfExpired();
 
-        if ($this->redis->exists($this->redisKey)) {
+        if ($this->keyExists()) {
 
             if ($this->getCount() >= $this->maxAttempts) {
                 return true;
@@ -101,7 +102,7 @@ class Predis implements TrackAttemptsInterface
     {
         $this->invalidateIfExpired();
 
-        if ($this->redis->exists($this->redisKey)) {
+        if ($this->keyExists()) {
             return $this->getTimeUntilExpireCalculation($this->getAttemptObject()->expires);
         }
 
