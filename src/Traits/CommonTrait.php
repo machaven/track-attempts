@@ -32,4 +32,61 @@ trait CommonTrait
             $this->clear();
         }
     }
+
+    public function increment()
+    {
+        $this->invalidateIfExpired();
+
+        if ($this->isLimitReached()) {
+            return false;
+        }
+
+        if ($this->keyExists()) {
+            $attemptObject = $this->getAttemptObject();
+            $attemptObject->attempts++;
+            $expiresFromNow = $this->getTimeUntilExpireCalculation($attemptObject->expires);
+        } else {
+            $expiresFromNow = $this->ttlInMinutes * 60;
+            $attemptObject = $this->createAttemptObject(1, $expiresFromNow);
+        }
+
+        $this->setKey($attemptObject, $expiresFromNow);
+
+        return true;
+    }
+
+    public function getCount()
+    {
+        $this->invalidateIfExpired();
+
+        if ($this->keyExists()) {
+            return $this->getAttemptObject()->attempts;
+        }
+
+        return 0;
+    }
+
+    public function isLimitReached()
+    {
+        $this->invalidateIfExpired();
+
+        if ($this->keyExists()) {
+            if ($this->getCount() >= $this->maxAttempts) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getTimeUntilExpired()
+    {
+        $this->invalidateIfExpired();
+
+        if ($this->keyExists()) {
+            return $this->getTimeUntilExpireCalculation($this->getAttemptObject()->expires);
+        }
+
+        return 0;
+    }
 }

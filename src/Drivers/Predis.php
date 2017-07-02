@@ -58,65 +58,10 @@ class Predis implements TrackAttemptsInterface
         return $this->redis->exists($this->trackingKey);
     }
 
-    public function increment()
+    private function setKey($attemptObject, $expireSeconds)
     {
-        $this->invalidateIfExpired();
-
-        if ($this->isLimitReached()) {
-            return false;
-        }
-
-        if ($this->keyExists()) {
-            $attemptObject = $this->getAttemptObject();
-            $attemptObject->attempts++;
-            $expiresFromNow = $this->getTimeUntilExpireCalculation($attemptObject->expires);
-            $this->redis->set($this->trackingKey, serialize($attemptObject));
-            $this->redis->expire($this->trackingKey, $expiresFromNow);
-        } else {
-            $expireSeconds = $this->ttlInMinutes * 60;
-            $attemptObject = $this->createAttemptObject(1, $expireSeconds);
-
-            $this->redis->set($this->trackingKey, serialize($attemptObject));
-            $this->redis->expire($this->trackingKey, $expireSeconds);
-        }
-
-        return true;
-    }
-
-    public function getCount()
-    {
-        $this->invalidateIfExpired();
-
-        if ($this->keyExists()) {
-            return $this->getAttemptObject()->attempts;
-        }
-
-        return 0;
-    }
-
-    public function isLimitReached()
-    {
-        $this->invalidateIfExpired();
-
-        if ($this->keyExists()) {
-
-            if ($this->getCount() >= $this->maxAttempts) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function getTimeUntilExpired()
-    {
-        $this->invalidateIfExpired();
-
-        if ($this->keyExists()) {
-            return $this->getTimeUntilExpireCalculation($this->getAttemptObject()->expires);
-        }
-
-        return 0;
+        $this->redis->set($this->trackingKey, serialize($attemptObject));
+        $this->redis->expire($this->trackingKey, $expireSeconds);
     }
 
     public function clear()
