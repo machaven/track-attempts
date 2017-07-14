@@ -27,20 +27,21 @@ Class Configuration
 --------
 Minimum Configuration
 ```
-$config = ['userIdentifier' => $username];
-$attempts = new \Machaven\TrackAttempts\Drivers\Predis($config);
+$config = ['driver' => 'predis', userIdentifier' => $username];
+$attempts = (new \Machaven\TrackAttempts\TrackAttempts($config))->getDriver();
 
 ```
 Full Configuration
 ```
 $config = [
+    'driver' => 'predis', // Driver to use ('predis' or 'laravel')
     'userIdentifier' => $username, // A variable with a unique identifier for the session/user
     'maxAttempts' => 3, // Max attempts limit
     'systemName' => 'my-website', // System Identifier used in cache key prefix.
     'ttlInMinutes' => 5, // Keep track of attempts in a five minute period.
     'actionName' => 'login', // The name of the action you are tracking.
     ];
-$attempts = new \Machaven\TrackAttempts\Drivers\Predis($config);
+$attempts = (new \Machaven\TrackAttempts\TrackAttempts($config))->getDriver();
 ```
 
 The configuration above will create a key named: my-website:login:$username.

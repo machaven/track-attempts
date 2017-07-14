@@ -47,8 +47,8 @@ trait ConfigTrait
         $this->ttlInMinutes = (isset($config['ttlInMinutes']) && is_numeric($config['ttlInMinutes'])) ? (int)$config['ttlInMinutes'] : 5;
         $this->actionName = (isset($config['actionName']) && !empty($config['actionName'])) ? $config['actionName'] : 'login';
 
-        if (empty($config['userIdentifier'])) {
-            throw new \InvalidArgumentException('Missing user identifier.');
+        if (!isset($config['userIdentifier']) || empty($config['userIdentifier'])) {
+            throw new \InvalidArgumentException('Missing user identifier argument.');
         }
         $this->userIdentifier = $config['userIdentifier'];
         $this->trackingKey = $this->systemName . ':' . $this->actionName . ':' . $this->userIdentifier;
