@@ -10,6 +10,7 @@ namespace Machaven\TrackAttempts;
 interface TrackAttemptsInterface
 {
     public function increment();
+    public function incrementAndCheckLimit();
     public function getCount();
     public function isLimitReached();
     public function getTimeUntilExpired();

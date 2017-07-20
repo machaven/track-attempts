@@ -37,6 +37,22 @@ trait CommonTrait
     {
         $this->invalidateIfExpired();
 
+        if ($this->keyExists()) {
+            $attemptObject = $this->getAttemptObject();
+            $attemptObject->attempts++;
+            $expiresFromNow = $this->getTimeUntilExpireCalculation($attemptObject->expires);
+        } else {
+            $expiresFromNow = $this->ttlInMinutes * 60;
+            $attemptObject = $this->createAttemptObject(1, $expiresFromNow);
+        }
+
+        $this->setKey($attemptObject, $expiresFromNow);
+    }
+
+    public function incrementAndCheckLimit()
+    {
+        $this->invalidateIfExpired();
+
         if ($this->isLimitReached()) {
             return false;
         }

@@ -93,14 +93,19 @@ Checking the time left before the count expires (in seconds)
 => 188
 ```
 
-Using increment to track and check (example of max limit of 3 attempts)
+Incrementing attempts
 ```
 >>> $attempts->increment();
+```
+
+Using increment to track and check (example of max limit of 3 attempts)
+```
+>>> $attempts->incrementAndCheckLimit();
 => true
->>> $attempts->increment();
+>>> $attempts->incrementAndCheckLimit();
 => true
->>> $attempts->increment();
+>>> $attempts->incrementAndCheckLimit();
 => true
->>> $attempts->increment();
+>>> $attempts->incrementAndCheckLimit();
 => false
 ```
