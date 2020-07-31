@@ -28,7 +28,7 @@ class LaravelCache implements TrackAttemptsInterface
 
     private function setKey($attemptObject, $expireSeconds)
     {
-        Cache::put($this->trackingKey, $attemptObject, $expireSeconds / 60);
+        Cache::put($this->trackingKey, $attemptObject, $expireSeconds);
     }
 
     public function clear()
