@@ -20,8 +20,15 @@ Features
 
 Install
 --------
+If using with the Laravel Drivers:
 
-```composer require machaven/track-attempts```
+Use tags for version 1.x when used with Laravel version less than 5.8
+
+```composer require machaven/track-attempts:^1.0```
+
+Use tags for version 2.x when used with Laravel version 5.8+
+
+```composer require machaven/track-attempts:^2.0```
 
 Class Configuration
 --------
