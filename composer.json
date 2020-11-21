@@ -18,7 +18,7 @@
 	"require-dev": {
     },
 	"autoload": {
-        "psr-0": {
+        "psr-4": {
             "Machaven\\TrackAttempts\\": "src/"
         }
     }
